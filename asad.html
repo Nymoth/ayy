@@ -3,32 +3,37 @@
 <head>
     <title>ayy</title>
     <style>
+        html { cursor: crosshair; }
         body { background:#000; overflow:hidden; }
         .me { width:10px; height:10px; background: #fff; border-radius: 100%; position: absolute; }
-        .bala { width:2px; height:2px; background: #fff; position: absolute; box-shadow: 0 0 3px 1px #fff; }
+        .bala { width:2px; height:2px; background: #fff; position: absolute; /*box-shadow: 0 0 3px 1px #fff;*/ }
     </style>
 </head>
 <body>
-
+    <script type="text/javascript" src="data.js"></script>
     <script>        
-        var me = document.createElement('div');
-        document.body.appendChild(me);
-        me.className = 'me';
-        
-        var x = Math.round(window.innerWidth / 2) - 5;
-        var y = Math.round(window.innerHeight / 2) - 5;
-
-        me.style.left = x + 'px';
-        me.style.top = y + 'px';
+        var me = {
+            dom: document.createElement('div'),
+            x: Math.round(window.innerWidth / 2) - 5,
+            y: Math.round(window.innerHeight / 2) - 5,
+            gun: guns.v,
+            speed: 5
+        };
+        document.body.appendChild(me.dom);
+        me.dom.className = 'me';
+        me.dom.style.left = me.x + 'px';
+        me.dom.style.top = me.y + 'px';
     
         var c = false;
         var e;
         var ns = 0;
         var mv = 0, mh = 0;
 
-        var vme = 5;
+// ******** control ********* \\
         var vbala = 10;
-
+        var ibala = 10;
+        var lbala = 100;
+// ************************** \\
         var balas = [];
         
         window.onmousedown = function(evt) {
@@ -108,52 +113,55 @@
         flow();
     
         function shoot() {
-            var bala = document.createElement('div');
-            bala.className = 'bala';
-            bala.style.left = x + 'px';
-            bala.style.top = y + 'px';
+            me.gun.channels.map(function(src) {
 
-            var dx = e.clientX - x;
-            var dy = e.clientY - y;
-            var fx, fy, bmh, bmv;
+                var dom = document.createElement('div');
+                dom.className = 'bala';
 
-            if (dx < 0) {
-                bmh = -1;
-            } else {
-                bmh = 1;
-            }
+                var dx = e.clientX - me.x/* * (Math.cos(src.desviation))*/;
+                var dy = e.clientY - me.y/* * (Math.sin(src.desviation))*/;
 
-            if (dy < 0) {
-                bmv = -1;
-            } else {
-                bmv = 1;
-            }
-            
-            if (Math.abs(dx) > Math.abs(dy)) {
-                fx = 1;
-                fy = Math.abs(dy) / Math.abs(dx);
-            } else {
-                fx = Math.abs(dx) / Math.abs(dy);
-                fy = 1;
-            }
+                var fx, fy, bmh, bmv;
 
-            balas.push({
-                dom: bala,
-                now: {
-                    x: x + 5,
-                    y: y + 5,
-                },
-                mov: {
-                    x: fx * bmh,
-                    y: fy * bmv
-                },
-                life: 1000
-            });
-            document.body.appendChild(bala);
+                if (dx < 0) {
+                    bmh = -1;
+                } else {
+                    bmh = 1;
+                }
+
+                if (dy < 0) {
+                    bmv = -1;
+                } else {
+                    bmv = 1;
+                }
                 
-            //console.log('bang!');
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    fx = 1;
+                    fy = Math.abs(dy) / Math.abs(dx);
+                } else {
+                    fx = Math.abs(dx) / Math.abs(dy);
+                    fy = 1;
+                }
+                var bala = {
+                    dom: dom,
+                    now: {
+                        x: me.x + 5 + src.offset.x,
+                        y: me.y + 5 + src.offset.y
+                    },
+                    mov: {
+                        x: fx * bmh,
+                        y: fy * bmv
+                    },
+                    life: me.gun.life
+                };
 
-            ns = 0;
+                bala.dom.style.left = bala.x + 'px';
+                bala.dom.style.top = bala.y + 'px';
+                document.body.appendChild(bala.dom);
+
+                balas.push(bala);
+            });
+            ns = me.gun.fire_rate;
         }
 
         function handle_balas() {
@@ -187,26 +195,24 @@
 
         function handle_mov_me() {
 
-            x += mh * vme;
-            y += mv * vme;
+            me.x += mh * me.speed;
+            me.y += mv * me.speed;
 
-            if (x > window.innerWidth) {
-                x = 0;
+            if (me.x > window.innerWidth) {
+                me.x = 0;
             }
-            if (x < 0) {
-                x = window.innerWidth - 5;
+            if (me.x < 0) {
+                me.x = window.innerWidth - 5;
             }
-            if (y > window.innerHeight) {
-                y = 0;
+            if (me.y > window.innerHeight) {
+                me.y = 0;
             }
-            if (y < 0) {
-                y = window.innerHeight - 5;
+            if (me.y < 0) {
+                me.y = window.innerHeight - 5;
             }
 
-            //console.log(mv, x, mh, y);
-
-            me.style.left = x + 'px';
-            me.style.top = y + 'px';
+            me.dom.style.left = me.x + 'px';
+            me.dom.style.top = me.y + 'px';
         }
 
     </script>
