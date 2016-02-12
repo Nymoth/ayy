@@ -1,0 +1,214 @@
+<!doctype html>
+<html>
+<head>
+    <title>ayy</title>
+    <style>
+        body { background:#000; overflow:hidden; }
+        .me { width:10px; height:10px; background: #fff; border-radius: 100%; position: absolute; }
+        .bala { width:2px; height:2px; background: #fff; position: absolute; box-shadow: 0 0 3px 1px #fff; }
+    </style>
+</head>
+<body>
+
+    <script>        
+        var me = document.createElement('div');
+        document.body.appendChild(me);
+        me.className = 'me';
+        
+        var x = Math.round(window.innerWidth / 2) - 5;
+        var y = Math.round(window.innerHeight / 2) - 5;
+
+        me.style.left = x + 'px';
+        me.style.top = y + 'px';
+    
+        var c = false;
+        var e;
+        var ns = 0;
+        var mv = 0, mh = 0;
+
+        var vme = 5;
+        var vbala = 10;
+
+        var balas = [];
+        
+        window.onmousedown = function(evt) {
+           c = true;
+           e = evt;
+        }
+
+        window.onmouseup = function() {
+           c = false; 
+        }
+
+        window.onmousemove = function(evt) {
+            if (c) e = evt;
+        }
+
+        window.onkeydown = function(evt) {
+            switch (evt.keyCode) {
+                case 38:
+                case 87:
+                    mv = -1;
+                    break;
+                case 40:
+                case 83:
+                    mv = 1;
+                    break;
+                case 37:
+                case 65:
+                    mh = -1;
+                    break;
+                case 39:
+                case 68:
+                    mh = 1;
+                    break;
+            }
+        }
+
+        window.onkeyup = function(evt) {
+            switch (evt.keyCode) {
+                case 38:
+                case 87:
+                case 40:
+                case 83:
+                    mv = 0;
+                    break;
+                case 37:
+                case 65:
+                case 39:
+                case 68:
+                    mh = 0;
+                    break;
+
+            }
+        }
+
+        // controller api?
+        // ...
+        // ...
+
+        function flow() {
+
+            if (mh !== 0 || mv !== 0) {
+                handle_mov_me();
+            }
+            
+            if (c && !+ns) {
+                shoot();
+            }
+
+          
+            handle_balas();
+
+            if (ns > 0) ns--;
+
+
+            requestAnimationFrame(flow);
+        }
+        flow();
+    
+        function shoot() {
+            var bala = document.createElement('div');
+            bala.className = 'bala';
+            bala.style.left = x + 'px';
+            bala.style.top = y + 'px';
+
+            var dx = e.clientX - x;
+            var dy = e.clientY - y;
+            var fx, fy, bmh, bmv;
+
+            if (dx < 0) {
+                bmh = -1;
+            } else {
+                bmh = 1;
+            }
+
+            if (dy < 0) {
+                bmv = -1;
+            } else {
+                bmv = 1;
+            }
+            
+            if (Math.abs(dx) > Math.abs(dy)) {
+                fx = 1;
+                fy = Math.abs(dy) / Math.abs(dx);
+            } else {
+                fx = Math.abs(dx) / Math.abs(dy);
+                fy = 1;
+            }
+
+            balas.push({
+                dom: bala,
+                now: {
+                    x: x + 5,
+                    y: y + 5,
+                },
+                mov: {
+                    x: fx * bmh,
+                    y: fy * bmv
+                },
+                life: 1000
+            });
+            document.body.appendChild(bala);
+                
+            //console.log('bang!');
+
+            ns = 0;
+        }
+
+        function handle_balas() {
+            balas.map(function(b) {
+                b.now.x += b.mov.x * vbala;
+                b.now.y += b.mov.y * vbala;
+
+                if (b.now.x > window.innerWidth) {
+                    b.now.x = 0;
+                }
+                if (b.now.x < 0) {
+                    b.now.x = window.innerWidth;
+                }
+                if (b.now.y > window.innerHeight) {
+                    b.now.y = 0;
+                }
+                if (b.now.y < 0) {
+                    b.now.y = window.innerHeight;
+                }
+
+                b.dom.style.left = b.now.x + 'px';
+                b.dom.style.top = b.now.y + 'px';
+
+                b.life--;
+                if (b.life === 0) {
+                    document.body.removeChild(b.dom);
+                    balas.splice(balas.indexOf(b), 1);
+                }
+            });
+        }
+
+        function handle_mov_me() {
+
+            x += mh * vme;
+            y += mv * vme;
+
+            if (x > window.innerWidth) {
+                x = 0;
+            }
+            if (x < 0) {
+                x = window.innerWidth - 5;
+            }
+            if (y > window.innerHeight) {
+                y = 0;
+            }
+            if (y < 0) {
+                y = window.innerHeight - 5;
+            }
+
+            //console.log(mv, x, mh, y);
+
+            me.style.left = x + 'px';
+            me.style.top = y + 'px';
+        }
+
+    </script>
+</body>
+</html>
