@@ -15,9 +15,9 @@ var guns = {
 		]
 	},
 	double: {
-		fire_rate: 10,
+		fire_rate: 1,
 		speed: 10,
-		life: 100,
+		life: 50,
 		dmg: 1,
 		channels: [
 			{
@@ -37,7 +37,7 @@ var guns = {
 		]
 	},
 	quad: {
-		fire_rate: 10,
+		fire_rate: 1,
 		speed: 10,
 		life: 50,
 		dmg: 1,

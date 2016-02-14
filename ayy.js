@@ -2,9 +2,12 @@ var me = {
     dom: document.createElement('div'),
     x: Math.round(window.innerWidth / 2) - 5,
     y: Math.round(window.innerHeight / 2) - 5,
-    gun: guns.simple,
+    gun: guns.quad,
     speed: 5
 };
+
+var renderer = new Renderer(window);
+
 document.body.appendChild(me.dom);
 me.dom.className = 'me';
 me.dom.style.left = me.x + 'px';
@@ -96,7 +99,7 @@ function flow() {
     }
     
     if (c && !+ns) {
-        shoot();
+        shoot(me, e.clientX, e.clientY);
     }
 
     handle_bullets();
@@ -107,14 +110,11 @@ function flow() {
 }
 flow();
 
-function shoot() {
+function shoot(me, mouseX, mouseY) {
     me.gun.channels.map(function(src) {
 
-        var dom = document.createElement('div');
-        dom.className = 'bala';
-
-        var dx = e.clientX - me.x;
-        var dy = e.clientY - me.y;
+        var dx = mouseX - me.x;
+        var dy = mouseY - me.y;
         var dv = new Victor(dx, dy);
 
         if (src.deviation !== 0) {
@@ -123,7 +123,7 @@ function shoot() {
             dy = dv.y;
         }                
 
-        var fx, fy, bmh, bmv;
+        var fx, fy, bmh, bmv, bnx, bny;
 
         if (dx < 0) {
             bmh = -1;
@@ -145,19 +145,16 @@ function shoot() {
             fy = 1;
         }
 
-        /*
-        var bsv = new Victor(me.x + 5 + src.offset.x, me.y + 5 + src.offset.y); // vector a src
-        var angulo = bsv.verticalAngleDeg();
-        bsv.rotate((90 - Math.abs(bsv.verticalAngleDeg())) * ((Math.PI * 2) / 360));
-        */
+        var bsv = new Victor(src.offset.x, src.offset.y);
+        bsv.rotate((180 - dv.verticalAngleDeg()) * ((Math.PI * 2) / 360));
+        bnx = me.x + 5 + bsv.x;
+        bny = me.y + 5 + bsv.y;
 
-        var bala = {
-            dom: dom,
+        var bullet = {
+            index: bullets.length,
             now: {
-                //x: bsv.x,
-                //y: bsv.y
-                x: me.x + 5 + src.offset.x,
-                y: me.y + 5 + src.offset.y
+                x: bnx,
+                y: bny
             },
             mov: {
                 x: fx * bmh,
@@ -166,40 +163,38 @@ function shoot() {
             life: me.gun.life
         };
 
-        bala.dom.style.left = bala.now.x + 'px';
-        bala.dom.style.top = bala.now.y + 'px';
-        document.body.appendChild(bala.dom);
+        bullets.push(bullet);
 
-        bullets.push(bala);
+        renderer.bullet.create(bullet);
     });
     ns = me.gun.fire_rate;
 }
 
 function handle_bullets() {
     bullets.map(function(b) {
+
         b.now.x += b.mov.x * me.gun.speed;
         b.now.y += b.mov.y * me.gun.speed;
 
-        if (b.now.x > window.innerWidth) {
+        if (b.now.x > renderer.width) {
             b.now.x = 0;
         }
         if (b.now.x < 0) {
-            b.now.x = window.innerWidth;
+            b.now.x = renderer.width;
         }
-        if (b.now.y > window.innerHeight) {
+        if (b.now.y > renderer.height) {
             b.now.y = 0;
         }
         if (b.now.y < 0) {
-            b.now.y = window.innerHeight;
+            b.now.y = renderer.height;
         }
 
-        b.dom.style.left = b.now.x + 'px';
-        b.dom.style.top = b.now.y + 'px';
+        renderer.bullet.move(b);
 
         b.life--;
         if (b.life === 0) {
-            document.body.removeChild(b.dom);
-            bullets.splice(bullets.indexOf(b), 1);
+            delete bullets[b.index];
+            renderer.bullet.destroy(b);
         }
     });
 }
