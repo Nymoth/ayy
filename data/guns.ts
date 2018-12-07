@@ -1,4 +1,7 @@
-var guns = {
+import { Gun } from './../core/types';
+
+const guns: { [key: string]: Gun } = {
+
 	simple: {
 		fire_rate: 10,
 		speed: 10,
@@ -14,6 +17,7 @@ var guns = {
 			}
 		]
 	},
+
 	double: {
 		fire_rate: 1,
 		speed: 10,
@@ -36,6 +40,7 @@ var guns = {
 			}
 		]
 	},
+
 	quad: {
 		fire_rate: 1,
 		speed: 10,
@@ -72,6 +77,7 @@ var guns = {
 			}
 		]
 	},
+
 	v3: {
 		fire_rate: 10,
 		speed: 10,
@@ -101,6 +107,7 @@ var guns = {
 			}
 		]
 	},
+
 	v5: {
 		fire_rate: 10,
 		speed: 10,
@@ -145,17 +152,5 @@ var guns = {
 		]
 	}
 };
-/*
-var enemies = {
-	test_cube: {
-		width: 50,
-		height: 50,
-		hp: 2
-	}
-};
 
-var levels = [{
-	name: 'Level 1',
-
-}];
-*/
+export default guns;
